@@ -237,25 +237,11 @@ export default function DirectoryPage() {
                           key={org.name + org.city}
                           className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 py-2 px-3 rounded hover:bg-gray-50 transition"
                         >
-                          {/* Name */}
+                          {/* Name + City */}
                           <div className="flex-1 min-w-0">
-                            {org.website ? (
-                              <a
-                                href={org.website}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="font-semibold text-[#0f2d3d] hover:text-[#c42032] transition"
-                              >
-                                {org.name}
-                              </a>
-                            ) : (
-                              <Link
-                                href={`/directory/${slugify(org.name)}`}
-                                className="font-semibold text-[#0f2d3d] hover:text-[#c42032] transition"
-                              >
-                                {org.name}
-                              </Link>
-                            )}
+                            <span className="font-semibold text-[#0f2d3d]">
+                              {org.name}
+                            </span>
                             {org.city && (
                               <span className="text-gray-500 text-sm ml-2">
                                 {org.city}
@@ -280,6 +266,25 @@ export default function DirectoryPage() {
                               ? "Furnish Together"
                               : org.layer}
                           </span>
+
+                          {/* Visit website button */}
+                          {org.website ? (
+                            <a
+                              href={org.website}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-xs font-semibold bg-[#c42032] hover:bg-[#a81b2b] text-white px-3 py-1 rounded transition whitespace-nowrap"
+                            >
+                              Visit website &rarr;
+                            </a>
+                          ) : (
+                            <Link
+                              href={`/directory/${slugify(org.name)}`}
+                              className="text-xs font-semibold bg-[#0f2d3d] hover:bg-[#1a4a5e] text-white px-3 py-1 rounded transition whitespace-nowrap"
+                            >
+                              View details &rarr;
+                            </Link>
+                          )}
                         </div>
                       ))}
                     </div>
