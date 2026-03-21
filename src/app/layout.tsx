@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Link from "next/link";
+import Image from "next/image";
 
 export const metadata: Metadata = {
   title: "Furniture Bank Network | Find a Furniture Bank Near You",
@@ -19,9 +20,14 @@ export default function RootLayout({
         {/* Header */}
         <header className="bg-[#0f2d3d] text-white">
           <nav className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
-            <Link href="/" className="text-lg font-bold tracking-tight">
-              <span className="text-[#c42032]">FURNITURE BANK</span>{" "}
-              <span className="text-white">NETWORK</span>
+            <Link href="/">
+              <Image
+                src="/logo.png"
+                alt="Furniture Bank Network"
+                width={200}
+                height={44}
+                priority
+              />
             </Link>
             <div className="flex items-center gap-6 text-sm font-medium">
               <Link href="/directory" className="hover:text-gray-300 transition">
