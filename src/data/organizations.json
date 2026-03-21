@@ -424,7 +424,7 @@
     "name": "My Brother's Keeper",
     "city": "Easton",
     "state": "MA",
-    "address": "Easton, MA 02356\u20130338",
+    "address": "Easton, MA 02356–0338",
     "website": "http://www.mybrotherskeeper.org/",
     "lat": "42.0245442",
     "lng": "-71.1286594",
@@ -704,7 +704,7 @@
     "name": "Furniture Mission of the Red River Valley",
     "city": "Fargo",
     "state": "ND",
-    "address": "2600 3rd Avenue North, Fargo, ND 58102 \u200b",
+    "address": "2600 3rd Avenue North, Fargo, ND 58102 ​",
     "website": "http://www.furnituremissionrrv.org",
     "lat": "46.8771863",
     "lng": "-96.7898034",
@@ -2185,7 +2185,7 @@
   },
   {
     "layer": "Canada",
-    "name": "The Welcome Collective \u2013 Le Collectif Bienvenue",
+    "name": "The Welcome Collective – Le Collectif Bienvenue",
     "city": "",
     "state": "QC",
     "address": "9494 Boul. Saint-Laurent #905",
@@ -2353,7 +2353,7 @@
   },
   {
     "layer": "Canada",
-    "name": "ATELIER DE R\u00c9CUP\u00c9RATION ST-JOSEPH",
+    "name": "ATELIER DE RÉCUPÉRATION ST-JOSEPH",
     "city": "Chicoutimi",
     "state": "QC",
     "address": "20 Boulevard du Saguenay Est, Chicoutimi, QC, Canada",
@@ -2367,7 +2367,7 @@
   },
   {
     "layer": "Canada",
-    "name": "Women In Need \u2013 New Start Program",
+    "name": "Women In Need – New Start Program",
     "city": "785 Pandora Ave Victoria",
     "state": "BC",
     "address": "785 Pandora Ave Victoria, BC V8W 1N9",
@@ -2465,14 +2465,14 @@
   },
   {
     "layer": "Canada",
-    "name": "ENTRAIDE FAMILIALE DE L\u2019OUTAOUAIS",
+    "name": "ENTRAIDE FAMILIALE DE L’OUTAOUAIS",
     "city": "276A",
     "state": "QC",
-    "address": "276A, boulevard Saint-Joseph Gatineau, Qu\u00e9bec, J8Y 3Y3",
+    "address": "276A, boulevard Saint-Joseph Gatineau, Québec, J8Y 3Y3",
     "website": "https://www.entraidefamiliale.com/?lang=en",
     "lat": "",
     "lng": "",
-    "phone": "\u200b819 525-6886",
+    "phone": "​819 525-6886",
     "email": "[email protected]",
     "fbn_profile": "https://furniturebanks.org/directory/entraide-familiale-de-loutaouais/",
     "fbn_listed": "FBN Directory"
@@ -2500,7 +2500,7 @@
     "website": "https://schcontario.ca/programs/community-support-services/furniture-bank/",
     "lat": "43.776126",
     "lng": "-79.239036",
-    "phone": "\u200b(416)-642-9445 ext 4015",
+    "phone": "​(416)-642-9445 ext 4015",
     "email": "[email protected]",
     "fbn_profile": "https://furniturebanks.org/directory/scarborough-furniture-bank/",
     "fbn_listed": "FBN Directory"
@@ -2538,7 +2538,7 @@
     "name": "FURNITURE BANK",
     "city": "M8Z 1K5",
     "state": "ON",
-    "address": "25, Connell Court, Etobicoke\u2014Lakeshore, Etobicoke, Toronto, Golden Horseshoe, Ontario, M8Z 1K5, Canada",
+    "address": "25, Connell Court, Etobicoke—Lakeshore, Etobicoke, Toronto, Golden Horseshoe, Ontario, M8Z 1K5, Canada",
     "website": "http://www.furniturebank.org",
     "lat": "43.613413019563",
     "lng": "-79.51876401901247",
@@ -2546,5 +2546,19 @@
     "email": "[email protected]",
     "fbn_profile": "https://furniturebanks.org/directory/furniture-bank/",
     "fbn_listed": "FBN Directory"
+  },
+  {
+    "layer": "Furniture Banks",
+    "name": "Hawaiʻi Island United Way Furniture Bank",
+    "city": "Hilo",
+    "state": "HI",
+    "address": "688 Kinoʻole Street, Hilo, HI, USA",
+    "website": "https://hiuw.org/our-impact/furniture-bank/furniture-bank.html",
+    "lat": "19.7205",
+    "lng": "-155.0839",
+    "phone": "",
+    "email": "",
+    "fbn_profile": "",
+    "fbn_listed": "No"
   }
 ]
