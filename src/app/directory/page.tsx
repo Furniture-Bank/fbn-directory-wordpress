@@ -27,21 +27,67 @@ const LAYER_COLORS: Record<string, string> = {
   Canada: "bg-[#c42032] text-white",
 };
 
+const CANADIAN_PROVINCES = new Set(["AB", "BC", "MB", "NB", "NL", "NS", "ON", "PE", "QC", "SK", "NT", "NU", "YT"]);
+
+const PROVINCE_NAMES: Record<string, string> = {
+  AB: "Alberta", BC: "British Columbia", MB: "Manitoba", NB: "New Brunswick",
+  NL: "Newfoundland and Labrador", NS: "Nova Scotia", ON: "Ontario",
+  PE: "Prince Edward Island", QC: "Quebec", SK: "Saskatchewan",
+  NT: "Northwest Territories", NU: "Nunavut", YT: "Yukon",
+};
+
+const STATE_NAMES: Record<string, string> = {
+  AL: "Alabama", AK: "Alaska", AZ: "Arizona", AR: "Arkansas", CA: "California",
+  CO: "Colorado", CT: "Connecticut", DE: "Delaware", DC: "District of Columbia",
+  FL: "Florida", GA: "Georgia", HI: "Hawaii", ID: "Idaho", IL: "Illinois",
+  IN: "Indiana", IA: "Iowa", KS: "Kansas", KY: "Kentucky", LA: "Louisiana",
+  ME: "Maine", MD: "Maryland", MA: "Massachusetts", MI: "Michigan",
+  MN: "Minnesota", MS: "Mississippi", MO: "Missouri", MT: "Montana",
+  NE: "Nebraska", NV: "Nevada", NH: "New Hampshire", NJ: "New Jersey",
+  NM: "New Mexico", NY: "New York", NC: "North Carolina", ND: "North Dakota",
+  OH: "Ohio", OK: "Oklahoma", OR: "Oregon", PA: "Pennsylvania",
+  RI: "Rhode Island", SC: "South Carolina", SD: "South Dakota",
+  TN: "Tennessee", TX: "Texas", UT: "Utah", VT: "Vermont", VA: "Virginia",
+  WA: "Washington", WV: "West Virginia", WI: "Wisconsin", WY: "Wyoming",
+};
+
+function getCountry(state: string) {
+  return CANADIAN_PROVINCES.has(state) ? "Canada" : "United States";
+}
+
+function getFullName(state: string) {
+  return PROVINCE_NAMES[state] || STATE_NAMES[state] || state;
+}
+
 export default function DirectoryPage() {
   const [search, setSearch] = useState("");
+  const [countryFilter, setCountryFilter] = useState("");
   const [stateFilter, setStateFilter] = useState("");
   const [layerFilter, setLayerFilter] = useState("");
 
-  // Get unique states sorted
-  const states = useMemo(() => {
-    const s = [...new Set(orgs.map((o) => o.state).filter(Boolean))].sort();
-    return s;
+  // Get unique states sorted, split by country
+  const { usStates, caProvinces } = useMemo(() => {
+    const allStates = [...new Set(orgs.map((o) => o.state).filter(Boolean))].sort();
+    return {
+      usStates: allStates.filter((s) => !CANADIAN_PROVINCES.has(s)),
+      caProvinces: allStates.filter((s) => CANADIAN_PROVINCES.has(s)),
+    };
   }, []);
 
   const layers = useMemo(
     () => [...new Set(orgs.map((o) => o.layer))].sort(),
     []
   );
+
+  // Available states based on country filter
+  const availableStates = useMemo(() => {
+    if (countryFilter === "US") return usStates;
+    if (countryFilter === "CA") return caProvinces;
+    return [...usStates, ...caProvinces].sort();
+  }, [countryFilter, usStates, caProvinces]);
+
+  // Reset state filter when country changes and selected state doesn't belong
+  const effectiveStateFilter = availableStates.includes(stateFilter) ? stateFilter : "";
 
   // Filter and sort
   const filtered = useMemo(() => {
@@ -53,35 +99,50 @@ export default function DirectoryPage() {
         (o) =>
           o.name.toLowerCase().includes(q) ||
           o.city.toLowerCase().includes(q) ||
-          o.state.toLowerCase().includes(q)
+          o.state.toLowerCase().includes(q) ||
+          (getFullName(o.state)).toLowerCase().includes(q)
       );
     }
 
-    if (stateFilter) {
-      result = result.filter((o) => o.state === stateFilter);
+    if (countryFilter) {
+      result = result.filter((o) =>
+        countryFilter === "CA"
+          ? CANADIAN_PROVINCES.has(o.state)
+          : !CANADIAN_PROVINCES.has(o.state)
+      );
+    }
+
+    if (effectiveStateFilter) {
+      result = result.filter((o) => o.state === effectiveStateFilter);
     }
 
     if (layerFilter) {
       result = result.filter((o) => o.layer === layerFilter);
     }
 
-    // Sort by state, then city, then name
+    // Sort by country (US first), then state, then city, then name
     return result.sort((a, b) => {
+      const countryA = getCountry(a.state);
+      const countryB = getCountry(b.state);
+      if (countryA !== countryB) return countryA === "United States" ? -1 : 1;
       if (a.state !== b.state) return a.state.localeCompare(b.state);
       if (a.city !== b.city) return a.city.localeCompare(b.city);
       return a.name.localeCompare(b.name);
     });
-  }, [search, stateFilter, layerFilter]);
+  }, [search, countryFilter, effectiveStateFilter, layerFilter]);
 
-  // Group by state for the 2007-style display
-  const grouped = useMemo(() => {
-    const map = new Map<string, Org[]>();
+  // Group by country, then by state
+  const groupedByCountry = useMemo(() => {
+    const countries = new Map<string, Map<string, Org[]>>();
     for (const org of filtered) {
-      const key = org.state || "Unknown";
-      if (!map.has(key)) map.set(key, []);
-      map.get(key)!.push(org);
+      const country = getCountry(org.state);
+      const state = org.state || "Unknown";
+      if (!countries.has(country)) countries.set(country, new Map());
+      const stateMap = countries.get(country)!;
+      if (!stateMap.has(state)) stateMap.set(state, []);
+      stateMap.get(state)!.push(org);
     }
-    return map;
+    return countries;
   }, [filtered]);
 
   return (
@@ -103,14 +164,26 @@ export default function DirectoryPage() {
           className="flex-1 border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#0f2d3d]"
         />
         <select
-          value={stateFilter}
+          value={countryFilter}
+          onChange={(e) => {
+            setCountryFilter(e.target.value);
+            setStateFilter("");
+          }}
+          className="border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#0f2d3d]"
+        >
+          <option value="">All Countries</option>
+          <option value="US">United States</option>
+          <option value="CA">Canada</option>
+        </select>
+        <select
+          value={effectiveStateFilter}
           onChange={(e) => setStateFilter(e.target.value)}
           className="border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#0f2d3d]"
         >
           <option value="">All States / Provinces</option>
-          {states.map((s) => (
+          {availableStates.map((s) => (
             <option key={s} value={s}>
-              {s}
+              {getFullName(s)} ({s})
             </option>
           ))}
         </select>
@@ -133,67 +206,83 @@ export default function DirectoryPage() {
         {filtered.length} organization{filtered.length !== 1 ? "s" : ""} found
       </p>
 
-      {/* Directory listing grouped by state */}
+      {/* Directory listing grouped by country, then state */}
       {filtered.length === 0 ? (
         <p className="text-gray-500 py-8 text-center">
           No organizations found matching your search.
         </p>
       ) : (
-        <div className="space-y-6">
-          {[...grouped.entries()].map(([state, stateOrgs]) => (
-            <div key={state}>
-              <h2 className="text-lg font-bold text-[#0f2d3d] border-b-2 border-[#0f2d3d] pb-1 mb-3">
-                {state}
-              </h2>
-              <div className="space-y-2">
-                {stateOrgs.map((org) => (
-                  <div
-                    key={org.name + org.city}
-                    className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 py-2 px-3 rounded hover:bg-gray-50 transition"
-                  >
-                    {/* Name */}
-                    <div className="flex-1 min-w-0">
-                      {org.website ? (
-                        <a
-                          href={org.website}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="font-semibold text-[#0f2d3d] hover:text-[#c42032] transition"
+        <div className="space-y-10">
+          {[...groupedByCountry.entries()].map(([country, stateMap]) => (
+            <div key={country}>
+              {/* Country header */}
+              <div className="flex items-center gap-3 mb-6">
+                <h2 className="text-2xl font-bold text-[#0f2d3d]">
+                  {country === "United States" ? "🇺🇸" : "🇨🇦"} {country}
+                </h2>
+                <span className="text-sm text-gray-500">
+                  {[...stateMap.values()].reduce((sum, arr) => sum + arr.length, 0)} organizations
+                </span>
+              </div>
+
+              <div className="space-y-6">
+                {[...stateMap.entries()].map(([state, stateOrgs]) => (
+                  <div key={state}>
+                    <h3 className="text-lg font-bold text-[#0f2d3d] border-b-2 border-[#0f2d3d] pb-1 mb-3">
+                      {getFullName(state)}
+                    </h3>
+                    <div className="space-y-2">
+                      {stateOrgs.map((org) => (
+                        <div
+                          key={org.name + org.city}
+                          className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 py-2 px-3 rounded hover:bg-gray-50 transition"
                         >
-                          {org.name}
-                        </a>
-                      ) : (
-                        <Link
-                          href={`/directory/${slugify(org.name)}`}
-                          className="font-semibold text-[#0f2d3d] hover:text-[#c42032] transition"
-                        >
-                          {org.name}
-                        </Link>
-                      )}
-                      {org.city && (
-                        <span className="text-gray-500 text-sm ml-2">
-                          {org.city}
-                        </span>
-                      )}
+                          {/* Name */}
+                          <div className="flex-1 min-w-0">
+                            {org.website ? (
+                              <a
+                                href={org.website}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="font-semibold text-[#0f2d3d] hover:text-[#c42032] transition"
+                              >
+                                {org.name}
+                              </a>
+                            ) : (
+                              <Link
+                                href={`/directory/${slugify(org.name)}`}
+                                className="font-semibold text-[#0f2d3d] hover:text-[#c42032] transition"
+                              >
+                                {org.name}
+                              </Link>
+                            )}
+                            {org.city && (
+                              <span className="text-gray-500 text-sm ml-2">
+                                {org.city}
+                              </span>
+                            )}
+                          </div>
+
+                          {/* Phone */}
+                          {org.phone && (
+                            <span className="text-sm text-gray-600 whitespace-nowrap">
+                              {formatPhone(org.phone)}
+                            </span>
+                          )}
+
+                          {/* Layer badge */}
+                          <span
+                            className={`text-xs font-medium px-2 py-0.5 rounded-full whitespace-nowrap ${
+                              LAYER_COLORS[org.layer] || "bg-gray-200 text-gray-700"
+                            }`}
+                          >
+                            {org.layer === "Furnish Together Members"
+                              ? "Furnish Together"
+                              : org.layer}
+                          </span>
+                        </div>
+                      ))}
                     </div>
-
-                    {/* Phone */}
-                    {org.phone && (
-                      <span className="text-sm text-gray-600 whitespace-nowrap">
-                        {formatPhone(org.phone)}
-                      </span>
-                    )}
-
-                    {/* Layer badge */}
-                    <span
-                      className={`text-xs font-medium px-2 py-0.5 rounded-full whitespace-nowrap ${
-                        LAYER_COLORS[org.layer] || "bg-gray-200 text-gray-700"
-                      }`}
-                    >
-                      {org.layer === "Furnish Together Members"
-                        ? "Furnish Together"
-                        : org.layer}
-                    </span>
                   </div>
                 ))}
               </div>
