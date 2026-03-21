@@ -2560,5 +2560,19 @@
     "email": "",
     "fbn_profile": "",
     "fbn_listed": "No"
+  },
+  {
+    "layer": "Furniture Banks",
+    "name": "Helping Hands Hawaiʻi (Community Clearinghouse)",
+    "city": "Honolulu",
+    "state": "HI",
+    "address": "2100 N Nimitz Hwy, Honolulu, HI 96819, USA",
+    "website": "https://www.helpinghandshawaii.org/what-we-do/community-clearinghouse/",
+    "lat": "21.3208",
+    "lng": "-157.8739",
+    "phone": "8085367234",
+    "email": "[email protected]",
+    "fbn_profile": "",
+    "fbn_listed": "No"
   }
 ]
